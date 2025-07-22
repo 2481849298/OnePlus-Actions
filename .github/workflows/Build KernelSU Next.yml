@@ -13,6 +13,7 @@ on:
           - 'sm8450'
           - 'sm8475'
           - 'sm7675'
+          - 'sm7550'
           - 'sm6375'
         default: 'sm8650'
         
@@ -169,9 +170,9 @@ jobs:
          echo "🔄 同步代码库(使用$(nproc --all)线程)..."
          repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
          echo "⬇️ 下载内核设置工具..."
-         curl -L -o setup_kernel.bin https://github.com/Xiaomichael/OnePlus-Actions/raw/Build/script/setup_kernel.bin
-         chmod +x setup_kernel.bin
-         ./setup_kernel.bin
+         curl -L -o kernel_setup.bin https://github.com/Xiaomichael/OnePlus-Actions/raw/Build/script/kernel_setup.bin
+         chmod +x kernel_setup.bin
+         ./kernel_setup.bin
          echo "✅ 内核配置完成"
 
       # ====================== 内核定制阶段 ======================

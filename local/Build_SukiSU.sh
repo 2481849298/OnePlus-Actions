@@ -5,7 +5,7 @@ set -e
 # --- Build Configuration ---
 clear
 echo "================================================="
-echo "  SukiSU Ultra Local Kernel Build Configuration  "
+echo "  SukiSU Ultra OnePlus Kernel Build Configuration  "
 echo "================================================="
 echo "Press Enter to accept the default value in [brackets]."
 echo ""
@@ -23,7 +23,7 @@ ask() {
 # --- Interactive Inputs ---
 CPU=$(ask "Enter CPU branch (e.g., sm8650, sm8550)" "sm8650")
 FEIL=$(ask "Enter phone model (e.g., oneplus_12, oneplus_11)" "oneplus_12")
-CPUD=$(ask "Enter processor codename (e.g., pineapple, kalama)" "pineapple")
+CPUD=$(ask "Enter processor codename (e.g., pineapple, kalama, waipio)" "pineapple")
 ANDROID_VERSION=$(ask "Enter kernel Android version (android14, android13, android12)" "android14")
 KERNEL_VERSION=$(ask "Enter kernel version (6.1, 5.15, 5.10)" "6.1")
 KPM=$(ask "Enable KPM (Kernel Patch Manager)? (On/Off)" "Off")
@@ -50,7 +50,9 @@ read -p "Press Enter to begin the build process..."
 clear
 
 # --- Environment Setup ---
+echo "📦 Preparing the files..."
 WORKSPACE=$PWD/build_workspace
+sudo rm -rf "$WORKSPACE"
 mkdir -p "$WORKSPACE"
 cd "$WORKSPACE"
 
@@ -102,7 +104,7 @@ fi
 # Clone Kernel Source
 echo "⬇️ Cloning kernel source code..."
 # If the directory already exists from a previous failed run, remove it for a clean start
-rm -rf kernel_workspace
+sudo rm -rf kernel_workspace
 mkdir -p kernel_workspace && cd kernel_workspace
 
 echo "🌐 Initializing repo for oneplus/${CPU} on model ${FEIL}..."
@@ -111,6 +113,8 @@ repo init -u https://github.com/Xiaomichael/kernel_manifest.git -b refs/heads/on
 echo "🔄 Syncing repositories (using $(nproc --all) threads)..."
 repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
 
+export adv=$ANDROID_VERSION
+echo "-$adv-oki-xiaoxiaow"
 echo "🔧 Cleaning up and modifying version strings..."
 rm -f kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports to remove from common!"
 rm -f kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports to remove from msm-kernel!"
@@ -121,9 +125,9 @@ sed -i 's/ -dirty//g' kernel_platform/external/dtc/scripts/setlocalversion
 sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' kernel_platform/common/scripts/setlocalversion
 sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' kernel_platform/msm-kernel/scripts/setlocalversion
 sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' kernel_platform/external/dtc/scripts/setlocalversion
-sed -i '$s|echo "\$res"|echo "-oki-xiaoxiaow"|' kernel_platform/common/scripts/setlocalversion
-sed -i '$s|echo "\$res"|echo "-oki-xiaoxiaow"|' kernel_platform/msm-kernel/scripts/setlocalversion
-sed -i '$s|echo "\$res"|echo "-oki-xiaoxiaow"|' kernel_platform/external/dtc/scripts/setlocalversion
+sed -i '$s|echo "\$res"|echo "-$adv-oki-xiaoxiaow"|' kernel_platform/common/scripts/setlocalversion
+sed -i '$s|echo "\$res"|echo "-$adv-oki-xiaoxiaow"|' kernel_platform/msm-kernel/scripts/setlocalversion
+sed -i '$s|echo "\$res"|echo "-$adv-oki-xiaoxiaow"|' kernel_platform/external/dtc/scripts/setlocalversion
 echo "✅ Kernel source cloned and configured."
 cd ..
 # Back to $WORKSPACE

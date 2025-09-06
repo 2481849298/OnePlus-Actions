@@ -112,7 +112,7 @@ echo "🔄 Syncing repositories (using $(nproc --all) threads)..."
 repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
 
 export adv=$ANDROID_VERSION
-echo "-$adv-oki-xiaoxiaow"
+echo "kernel_name: -$adv-oki-xiaoxiaow"
 echo "🔧 Cleaning up and modifying version strings..."
 rm -f kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports to remove from common!"
 rm -f kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports to remove from msm-kernel!"
@@ -300,7 +300,7 @@ cd "$WORKSPACE/kernel_workspace/kernel_platform/common"
 MAKE_CMD_COMMON="make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=\"ccache clang\" RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld HOSTLD=ld.lld O=out gki_defconfig all"
 
 if [ "$KERNEL_VERSION" = "6.1" ]; then
-    export KBUILD_BUILD_TIMESTAMP="Mon Jul 7 01:51:02 UTC 2025"
+    export KBUILD_BUILD_TIMESTAMP="Wed Aug  6 13:29:27 UTC 2025"
     export KBUILD_BUILD_VERSION=1
     export PATH="$WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r487747c/bin:$PATH"
     eval "$MAKE_CMD_COMMON KCFLAGS+=-O2"

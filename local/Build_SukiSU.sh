@@ -29,7 +29,8 @@ KERNEL_VERSION=$(ask "Enter kernel version (6.1, 5.15, 5.10)" "6.1")
 KPM=$(ask "Enable KPM (Kernel Patch Manager)? (On/Off)" "Off")
 lz4kd=$(ask "Enable lz4kd? (6.1 uses lz4 + zstd if Off) (On/Off)" "Off")
 bbr=$(ask "Enable BBR congestion control algorithm? (On/Off)" "Off")
-proxy=$(ask "Add proxy performance optimization? (if oneplus_ace5_race must be off!!!!) (On/Off)" "On")
+bbg=$(ask "Enable Baseband-Guard? (On/Off)" "On")
+proxy=$(ask "Add proxy performance optimization? (if MTK_CPU must be Off!)  (On/Off)" "On")
 
 # --- Display Configuration Summary ---
 clear
@@ -37,14 +38,15 @@ echo ""
 echo "================================================="
 echo "         Configuration Summary"
 echo "================================================="
-echo "Phone Model        : $FEIL"
-echo "CPU                : $CPU"
-echo "Android Version    : $ANDROID_VERSION"
-echo "Kernel Version     : $KERNEL_VERSION"
-echo "KPM Enabled        : $KPM"
-echo "lz4kd Enabled      : $lz4kd"
-echo "BBR Enabled        : $bbr"
-echo "Proxy Opts Enabled : $proxy"
+echo "Phone Model            : $FEIL"
+echo "CPU                    : $CPU"
+echo "Android Version        : $ANDROID_VERSION"
+echo "Kernel Version         : $KERNEL_VERSION"
+echo "KPM Enabled            : $KPM"
+echo "lz4kd Enabled          : $lz4kd"
+echo "BBR Enabled            : $bbr"
+echo "Baseband-Guard Enabled : $bbg"
+echo "Proxy Opts Enabled     : $proxy"
 echo "================================================="
 read -p "Press Enter to begin the build process..."
 clear
@@ -70,7 +72,7 @@ echo "✅ All dependencies installed successfully."
 # Set up and improve ccache
 # Generous size for local builds
 echo "⚙️ Setting up ccache..."
-export CCACHE_DIR="$HOME/.ccache_${FEIL}"
+export CCACHE_DIR="$HOME/.ccache_${FEIL}_SukiSU"
 export CCACHE_COMPILERCHECK="%compiler% -dumpmachine; %compiler% -dumpversion"
 export CCACHE_NOHASHDIR="true"
 export CCACHE_HARDLINK="true"
@@ -132,9 +134,15 @@ echo "✅ Kernel source cloned and configured."
 cd ..
 # Back to $WORKSPACE
 
-# --- Kernel Customization ---
-cd kernel_workspace
+if [ "$bbg" = "On" ]; then
+    set -e
+    cd kernel_workspace/kernel_platform/common
+    curl -sSL https://github.com/vc-teahouse/Baseband-guard/raw/main/setup.sh -o setup.sh
+    bash setup.sh
+    cd ../..
+fi
 
+# --- Kernel Customization ---
 # Setup SukiSU Ultra
 echo "⚡ Setting up SukiSU Ultra..."
 cd kernel_platform
@@ -194,7 +202,7 @@ git clone https://github.com/ShirkNeko/SukiSU_patch.git
 cd kernel_platform
 echo "📝 Copying patch files..."
 cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch ./common/
-cp ../kernel_patches/sukisu/scope_min_manual_hooks_v1.4.patch ./common/
+cp ../kernel_patches/sukisu/scope_min_manual_hooks_v1.5.patch ./common/
 cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
 cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
 
@@ -218,7 +226,7 @@ cd ./common
 patch -p1 < 50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch || true
 cp ../../kernel_patches/69_hide_stuff.patch ./
 patch -p1 -F 3 < 69_hide_stuff.patch || true
-patch -p1 -F 3 < scope_min_manual_hooks_v1.4.patch || true
+patch -p1 -F 3 < scope_min_manual_hooks_v1.5.patch || true
 
 if [ "$lz4kd" = "Off" ] && [ "$KERNEL_VERSION" = "6.1" ]; then
   echo "📦 Applying lz4+zstd patches..."
@@ -265,6 +273,14 @@ CONFIG_KSU_SUSFS_SUS_SU=n
 EOT
 
 if [ "$KPM" = "On" ]; then echo "CONFIG_KPM=y" >> "$DEFCONFIG_PATH"; fi
+
+if [ "$bbg" == "On" ]; then
+  echo "📦 Enabling BBG..."
+  cat <<EOT >> "$DEFCONFIG_PATH"
+CONFIG_BBG=y
+CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,selinux,smack,tomoyo,apparmor,bpf,baseband_guard"
+EOT
+fi
 
 if [ "$bbr" = "On" ]; then
   echo "🌐 Enabling BBR..."

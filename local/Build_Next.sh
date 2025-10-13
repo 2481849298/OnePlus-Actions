@@ -217,7 +217,6 @@ cat <<EOT >> "$DEFCONFIG_PATH"
 CONFIG_KSU=y
 CONFIG_KSU_KPROBES_HOOK=n
 CONFIG_KSU_SUSFS=y
-CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y
 CONFIG_KSU_SUSFS_SUS_PATH=y
 CONFIG_KSU_SUSFS_SUS_MOUNT=y
 CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y
@@ -238,7 +237,7 @@ if [ "$bbg" == "On" ]; then
   echo "📦 Enabling BBG..."
   cat <<EOT >> "$DEFCONFIG_PATH"
 CONFIG_BBG=y
-CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,selinux,smack,tomoyo,apparmor,bpf,baseband_guard"
+CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,integrity,selinux,smack,tomoyo,apparmor,bpf,baseband_guard"
 EOT
 fi
 

@@ -29,7 +29,7 @@ KPM=$(ask "Enable KPM (Kernel Patch Manager)? (On/Off)" "Off")
 lz4kd=$(ask "Enable lz4kd? (6.1 uses lz4 + zstd if Off) (On/Off)" "Off")
 bbr=$(ask "Enable BBR congestion control algorithm? (On/Off)" "Off")
 bbg=$(ask "Enable Baseband-Guard? (On/Off)" "On")
-proxy=$(ask "Add proxy performance optimization? (if MTK_CPU must be Off!)  (On/Off)" "On")
+proxy=$(ask "Add proxy performance optimization? (if MTK CPU must be Off!)  (On/Off)" "On")
 
 # --- Display Configuration Summary ---
 clear
@@ -130,12 +130,10 @@ sed -i '$s|echo "\$res"|echo "-$adv-oki-xiaoxiaow"|' kernel_platform/common/scri
 sed -i '$s|echo "\$res"|echo "-$adv-oki-xiaoxiaow"|' kernel_platform/msm-kernel/scripts/setlocalversion
 sed -i '$s|echo "\$res"|echo "-$adv-oki-xiaoxiaow"|' kernel_platform/external/dtc/scripts/setlocalversion
 echo "✅ Kernel source cloned and configured."
-cd ..
-# Back to $WORKSPACE
 
 if [ "$bbg" = "On" ]; then
     set -e
-    cd kernel_workspace/kernel_platform/common
+    cd kernel_platform/common
     curl -sSL https://github.com/vc-teahouse/Baseband-guard/raw/main/setup.sh -o setup.sh
     bash setup.sh
     cd ../..
@@ -268,6 +266,10 @@ CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
 CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
 CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
 CONFIG_KSU_SUSFS_SUS_SU=n
+CONFIG_KSU_SUSFS_SUS_MAP=y
+# 添加对 Mountify (backslashxx/mountify) 模块的支持
+CONFIG_TMPFS_XATTR=y
+CONFIG_TMPFS_POSIX_ACL=y
 EOT
 
 if [ "$KPM" = "On" ]; then echo "CONFIG_KPM=y" >> "$DEFCONFIG_PATH"; fi
@@ -340,6 +342,8 @@ if [ "$KERNEL_VERSION" = "5.10" ] || [ "$KERNEL_VERSION" = "5.15" ]; then
   grep -q '^CONFIG_LTO_CLANG_THIN=y' "$DEFCONFIG_PATH" || echo 'CONFIG_LTO_CLANG_THIN=y' >> "$DEFCONFIG_PATH"
 fi
 
+echo "CONFIG_HEADERS_INSTALL=n" >> "$DEFCONFIG_PATH"
+
 sed -i 's/check_defconfig//' "$WORKSPACE/kernel_workspace/kernel_platform/common/build.config.gki"
 echo "✅ Kernel defconfig updated."
 cd ../..
@@ -353,7 +357,7 @@ cd "$WORKSPACE/kernel_workspace/kernel_platform/common"
 MAKE_CMD_COMMON="make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=\"ccache clang\" RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld HOSTLD=ld.lld O=out gki_defconfig all"
 
 if [ "$KERNEL_VERSION" = "6.1" ]; then
-    export KBUILD_BUILD_TIMESTAMP="Wed Aug  6 13:29:27 UTC 2025"
+    export KBUILD_BUILD_TIMESTAMP="Fri Aug 29 08:51:19 UTC 2025"
     export KBUILD_BUILD_VERSION=1
     export PATH="$WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r487747c/bin:$PATH"
     eval "$MAKE_CMD_COMMON KCFLAGS+=-O2"
@@ -425,6 +429,3 @@ fi
 
 echo "================================================="
 echo ""
-
-echo "📊 Displaying disk statistics:"
-df -h

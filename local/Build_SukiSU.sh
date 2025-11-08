@@ -148,7 +148,7 @@ curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/susfs-mai
 # Get KSU Version info
 cd KernelSU
 KSU_VERSION_COUNT=$(git rev-list --count main)
-export KSUVER=$(expr $KSU_VERSION_COUNT + 10700)
+export KSUVER=$(expr $KSU_VERSION_COUNT + 37185)
 
 for i in {1..3}; do
   KSU_API_VERSION=$(curl -fsSL "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/susfs-main/kernel/Makefile" | \
@@ -199,7 +199,7 @@ git clone https://github.com/ShirkNeko/SukiSU_patch.git
 cd kernel_platform
 echo "📝 Copying patch files..."
 cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch ./common/
-cp ../kernel_patches/sukisu/scope_min_manual_hooks_v1.5.patch ./common/
+cp ../kernel_patches/sukisu/scope_min_manual_hooks_v1.6.patch ./common/
 cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
 cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
 
@@ -223,7 +223,7 @@ cd ./common
 patch -p1 < 50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch || true
 cp ../../kernel_patches/69_hide_stuff.patch ./
 patch -p1 -F 3 < 69_hide_stuff.patch || true
-patch -p1 -F 3 < scope_min_manual_hooks_v1.5.patch || true
+patch -p1 -F 3 < scope_min_manual_hooks_v1.6.patch || true
 
 if [ "$lz4kd" = "Off" ] && [ "$KERNEL_VERSION" = "6.1" ]; then
   echo "📦 Applying lz4+zstd patches..."
@@ -357,7 +357,7 @@ cd "$WORKSPACE/kernel_workspace/kernel_platform/common"
 MAKE_CMD_COMMON="make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=\"ccache clang\" RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole LD=ld.lld HOSTLD=ld.lld O=out gki_defconfig all"
 
 if [ "$KERNEL_VERSION" = "6.1" ]; then
-    export KBUILD_BUILD_TIMESTAMP="Fri Aug 29 08:51:19 UTC 2025"
+    export KBUILD_BUILD_TIMESTAMP="Wed Aug 20 07:17:20 UTC 2025"
     export KBUILD_BUILD_VERSION=1
     export PATH="$WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r487747c/bin:$PATH"
     eval "$MAKE_CMD_COMMON KCFLAGS+=-O2"
@@ -391,7 +391,7 @@ cp "$IMAGE_PATH" ./AnyKernel3/Image
 if [ "$KPM" = 'On' ]; then
     echo "🧩 Applying KPM patch to kernel Image..."
     mkdir -p kpm_patch_temp && cd kpm_patch_temp
-    curl -LO https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/download/0.12.0/patch_linux
+    curl -LO https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/download/0.12.1/patch_linux
     chmod +x patch_linux
     cp "$WORKSPACE/AnyKernel3/Image" ./Image
     ./patch_linux

@@ -272,7 +272,7 @@ jobs:
           cd kernel_platform
           echo "📝 复制补丁文件..."
           cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch ./common/
-          cp ../kernel_patches/sukisu/scope_min_manual_hooks_v1.5.patch ./common/
+          cp ../kernel_patches/sukisu/scope_min_manual_hooks_v1.6.patch ./common/
           cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
           cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
           
@@ -310,7 +310,7 @@ jobs:
           patch -p1 < 50_add_susfs_in_gki-${{ github.event.inputs.ANDROID_VERSION }}-${{ github.event.inputs.KERNEL_VERSION }}.patch || true
           cp ../../kernel_patches/69_hide_stuff.patch ./
           patch -p1 -F 3 < 69_hide_stuff.patch
-          patch -p1 -F 3 < scope_min_manual_hooks_v1.5.patch
+          patch -p1 -F 3 < scope_min_manual_hooks_v1.6.patch
 
           echo "✅ 所有补丁应用完成"
 
@@ -431,7 +431,7 @@ jobs:
         run: |
           echo "🏗️ 开始内核编译..."
           if [ "${{ github.event.inputs.KERNEL_VERSION }}" == "6.1" ]; then
-            export KBUILD_BUILD_TIMESTAMP="Fri Aug 29 08:51:19 UTC 2025"
+            export KBUILD_BUILD_TIMESTAMP="Wed Aug 20 07:17:20 UTC 2025"
             export KBUILD_BUILD_VERSION=1
             export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r487747c/bin:$PATH"
             export PATH="/usr/lib/ccache:$PATH"
@@ -482,7 +482,7 @@ jobs:
         run: |
           echo "🔧 正在应用KPM补丁..."
           cd kernel_workspace/kernel_platform/out/Final-Image-Find
-          curl -LO https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/download/0.12.0/patch_linux
+          curl -LO https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/download/0.12.1/patch_linux
           chmod +x patch_linux
           ./patch_linux
           rm -f Image
